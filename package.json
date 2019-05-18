@@ -1,6 +1,6 @@
 {
   "name": "npmvi",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "\"Node.JS Package Multiple Version Installer\" A command tool, which allows you to install multiple versions for the same package in a project.",
   "dependencies": {},
   "devDependencies": {},
@@ -9,7 +9,7 @@
   },
   "preferGlobal": true,
   "bin": {
-    "npvi": "./bin.js"
+    "npmvi": "./bin.js"
   },
   "keywords": [
     "multiple",

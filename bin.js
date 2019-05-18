@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 var PATH_MODULE = require('path');
 var FS_MODULE = require('fs');
 var CWD = process.cwd();
