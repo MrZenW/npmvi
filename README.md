@@ -29,12 +29,24 @@ $ npmvi install
 
 ### Using the multi-version installed with NPMVI
 ```JavaScript
-var express3 = require('@npmvi/express-3.0.0');
-var express4 = require('@npmvi/express-4.0.0');
+var express3NpmviObject = require('@npmvi/express-3.0.0');
+var express4NpmviObject = require('@npmvi/express-4.0.0');
+
+express3NpmviObject.index; // the original express3 module entrance
+express3NpmviObject.name; // express
+express3NpmviObject.version; // 3.0.0
+express3NpmviObject.packageJSON; // express3 package.json
+express3NpmviObject.isNPMVI; // true
+
+express4NpmviObject.index; // the original express4 module entrance
+express4NpmviObject.name; // express
+express4NpmviObject.version; // 4.0.0
+express4NpmviObject.packageJSON; // express4 package.json
+express4NpmviObject.isNPMVI; // true
 ```
 
 
-## Remove
+### Remove
 ```bash
 $ cd ~/your_project
 $ npmvi remove express@3.0.0
