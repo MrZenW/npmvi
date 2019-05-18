@@ -19,7 +19,7 @@ if (argvCmd === 'install') {
 } else if (argvCmd === 'remove') {
   if (process.argv[3]) {
     var mAndV = process.argv[3].split('@');
-    if (mAndV) {
+    if (Array.isArray(mAndV)) {
       moduleVersion = mAndV[mAndV.length - 1];
       moduleName = mAndV[mAndV.length - 2];
     }
@@ -28,7 +28,7 @@ if (argvCmd === 'install') {
     process.exit(1);
   }
 } else {
-  process.stdout.write('invalid option: ' + argvCmd + '\n');
+  process.stdout.write('npmvi: 😮 invalid option: ' + argvCmd + '\n');
   process.exit(1);
 }
 
@@ -62,7 +62,7 @@ if (argvCmd === 'install') {
           process.stdout.write('👇 Ready to install! '+ nextPackageInfo.package + '@' + nextPackageInfo.version + '\n');
           installPackage(packageJSONPath, nextPackageInfo.package, nextPackageInfo.version, (closeCode, installedPackageInfo) => {
             if (closeCode) {
-              process.stderr.write('🙀 Failed! '+ installedPackageInfo.package + '@' + installedPackageInfo.version + '\n');
+              process.stderr.write('🙀😱Failed! '+ installedPackageInfo.package + '@' + installedPackageInfo.version + '\n');
               process.exit(closeCode);
             }
             if (installedPackageInfo) process.stdout.write('☝️ Done! '+ installedPackageInfo.package + '@' + installedPackageInfo.version + '\n\n');
@@ -77,6 +77,7 @@ if (argvCmd === 'install') {
 } else if (argvCmd === 'remove') {
   if (moduleName && moduleVersion) {
     removePackage(packageJSONPath, moduleName, moduleVersion);
+    process.stdout.write('👏 All Done!\n');
   }
 }
 

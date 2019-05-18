@@ -1,6 +1,6 @@
 {
   "name": "npmvi",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "\"Node.JS Package Multiple Version Installer\" A command tool, which allows you to install multiple versions for the same package in a project.",
   "dependencies": {},
   "devDependencies": {},
@@ -15,6 +15,15 @@
     "multiple",
     "version"
   ],
-  "author": "Zen",
-  "license": "MIT"
+  "author": "Zen WANG <zenyes@gmail.com> (https://github.com/zenboss)",
+  "license": "MIT",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zenboss/npmvi.git"
+  },
+  "bugs": {
+    "url": "https://github.com/zenboss/npmvi/issues"
+  },
+  "homepage": "https://github.com/zenboss/npmvi#readme"
 }
