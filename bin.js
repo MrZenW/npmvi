@@ -198,7 +198,8 @@ function makeFakeProject(path, moduleName, version) {
 
   // copy index.js
   var indexFilePath = PATH_MODULE.resolve(moduleAndVer, './index.js');
-  FS_MODULE.copyFileSync('./tmp.index.js', indexFilePath);
+  var tmpIndexPath = PATH_MODULE.resolve(__dirname, './tmp.index.js');
+  FS_MODULE.copyFileSync(tmpIndexPath, indexFilePath);
   return moduleAndVer;
 }
 
