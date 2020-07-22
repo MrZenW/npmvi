@@ -94,9 +94,12 @@ function parseArgvModelNameAndVersion (mAndV) {
   if (lastIndexOfAtSymbol < 0) {
     return null;
   }
+  var name = mAndV.slice(0, lastIndexOfAtSymbol),
+  var version = mAndV.slice(lastIndexOfAtSymbol + 1)
+  if (!name || !version) return null;
   return {
-    name: mAndV.slice(0, lastIndexOfAtSymbol),
-    version: mAndV.slice(lastIndexOfAtSymbol + 1)
+    name: name,
+    version: version
   };
 }
 
