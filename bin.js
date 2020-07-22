@@ -3,85 +3,101 @@ var PATH_MODULE = require('path');
 var FS_MODULE = require('fs');
 var CWD = process.cwd();
 
-var argvCmd = process.argv[2];
-var moduleName = null;
-var moduleVersion = null;
-if (argvCmd === 'install') {
-  if (process.argv[3]) {
-    var mAndV = process.argv[3];
-    var lastIndexOfAtSymbol = mAndV.lastIndexOf('@');
-    if (lastIndexOfAtSymbol < 0) {
+main();
+
+function main() {
+  var argvCmd = process.argv[2];
+  var moduleName = null;
+  var moduleVersion = null;
+  if (argvCmd === 'install') {
+    if (process.argv[3]) {
+      var moduleInfo = parseArgvModelNameAndVersion(process.argv[3]);
+      if (!moduleInfo) {
+        process.stderr.write('🤷‍♂️ Need package@version!\n');
+        process.exit(1);
+      }
+      moduleVersion = moduleInfo.version;
+      moduleName = moduleInfo.name;
+    } else {
+      // else, install by package.json
+    }
+  } else if (argvCmd === 'remove') {
+    if (process.argv[3]) {
+      var moduleInfo = parseArgvModelNameAndVersion(process.argv[3]);
+      if (!moduleInfo) {
+        process.stderr.write('🤷‍♂️ Need package@version!\n');
+        process.exit(1);
+      }
+      moduleVersion = moduleInfo.version;
+      moduleName = moduleInfo.name;
+    } else {
       process.stderr.write('🤷‍♂️ Need package@version!\n');
       process.exit(1);
     }
-    moduleVersion = mAndV.slice(lastIndexOfAtSymbol + 1);
-    moduleName = mAndV.slice(0, lastIndexOfAtSymbol);
   } else {
-    // else, install by package.json
-  }
-} else if (argvCmd === 'remove') {
-  if (process.argv[3]) {
-    var mAndV = process.argv[3].split('@');
-    if (Array.isArray(mAndV)) {
-      moduleVersion = mAndV[mAndV.length - 1];
-      moduleName = mAndV[mAndV.length - 2];
-    }
-  } else {
-    process.stderr.write('🤷‍♂️ Need package@version!\n');
+    process.stdout.write('npmvi: 😮 invalid option: ' + argvCmd + '\n');
     process.exit(1);
   }
-} else {
-  process.stdout.write('npmvi: 😮 invalid option: ' + argvCmd + '\n');
-  process.exit(1);
-}
 
-var packageJSONPath = getPackageJSONPathNearest(CWD);
-// var moduleDirectory = getModuleDirectoryNearest(CWD);
-if (!packageJSONPath) {
-  // create this current work directory
-  packageJSONPath = PATH_MODULE.resolve(CWD, './package.json');
-}
+  var packageJSONPath = getPackageJSONPathNearest(CWD);
+  // var moduleDirectory = getModuleDirectoryNearest(CWD);
+  if (!packageJSONPath) {
+    // create this current work directory
+    packageJSONPath = PATH_MODULE.resolve(CWD, './package.json');
+  }
 
-if (argvCmd === 'install') {
-  if (moduleName && moduleVersion) {
-    // install by command line  
-    installPackage(packageJSONPath, moduleName, moduleVersion, (closeCode) => {
-      if (closeCode) {
-        process.stderr.write('🙀 Failed! '+ moduleName + '@' + moduleVersion + '\n');
-        process.exit(closeCode);
-      }
-      addFieldToJSON(packageJSONPath, moduleName, moduleVersion);
-      process.stdout.write('🤘 Done! '+ moduleName + '@' + moduleVersion + '\n');
-    });
-  } else {
-    // install by package.json
-    // installPackageByJSON(packageJSONPath);
-    var json = require(packageJSONPath);
-    if (json['@npmvi'] && json['@npmvi'].dependencies) {
-      var depend = [].concat(json['@npmvi'].dependencies); // shallow array clone
-      (function installStep() {
-        var nextPackageInfo = depend.pop();
-        if (nextPackageInfo) {
-          process.stdout.write('👇 Ready to install! '+ nextPackageInfo.package + '@' + nextPackageInfo.version + '\n');
-          installPackage(packageJSONPath, nextPackageInfo.package, nextPackageInfo.version, (closeCode, installedPackageInfo) => {
-            if (closeCode) {
-              process.stderr.write('🙀😱Failed! '+ installedPackageInfo.package + '@' + installedPackageInfo.version + '\n');
-              process.exit(closeCode);
-            }
-            if (installedPackageInfo) process.stdout.write('☝️ Done! '+ installedPackageInfo.package + '@' + installedPackageInfo.version + '\n\n');
-            installStep();
-          });
-        } else {
-          process.stdout.write('👏 All Done!\n');
+  if (argvCmd === 'install') {
+    if (moduleName && moduleVersion) {
+      // install by command line  
+      installPackage(packageJSONPath, moduleName, moduleVersion, (closeCode) => {
+        if (closeCode) {
+          process.stderr.write('🙀 Failed! '+ moduleName + '@' + moduleVersion + '\n');
+          process.exit(closeCode);
         }
-      })();
+        addFieldToJSON(packageJSONPath, moduleName, moduleVersion);
+        process.stdout.write('🤘 Done! '+ moduleName + '@' + moduleVersion + '\n');
+      });
+    } else {
+      // install by package.json
+      // installPackageByJSON(packageJSONPath);
+      var json = require(packageJSONPath);
+      if (json['@npmvi'] && json['@npmvi'].dependencies) {
+        var depend = [].concat(json['@npmvi'].dependencies); // shallow array clone
+        (function installStep() {
+          var nextPackageInfo = depend.pop();
+          if (nextPackageInfo) {
+            process.stdout.write('👇 Ready to install! '+ nextPackageInfo.package + '@' + nextPackageInfo.version + '\n');
+            installPackage(packageJSONPath, nextPackageInfo.package, nextPackageInfo.version, (closeCode, installedPackageInfo) => {
+              if (closeCode) {
+                process.stderr.write('🙀😱Failed! '+ installedPackageInfo.package + '@' + installedPackageInfo.version + '\n');
+                process.exit(closeCode);
+              }
+              if (installedPackageInfo) process.stdout.write('☝️ Done! '+ installedPackageInfo.package + '@' + installedPackageInfo.version + '\n\n');
+              installStep();
+            });
+          } else {
+            process.stdout.write('👏 All Done!\n');
+          }
+        })();
+      }
+    }
+  } else if (argvCmd === 'remove') {
+    if (moduleName && moduleVersion) {
+      removePackage(packageJSONPath, moduleName, moduleVersion);
+      process.stdout.write('👏 All Done!\n');
     }
   }
-} else if (argvCmd === 'remove') {
-  if (moduleName && moduleVersion) {
-    removePackage(packageJSONPath, moduleName, moduleVersion);
-    process.stdout.write('👏 All Done!\n');
+}
+
+function parseArgvModelNameAndVersion (mAndV) {
+  var lastIndexOfAtSymbol = mAndV.lastIndexOf('@');
+  if (lastIndexOfAtSymbol < 0) {
+    return null;
   }
+  return {
+    name: mAndV.slice(0, lastIndexOfAtSymbol),
+    version: mAndV.slice(lastIndexOfAtSymbol + 1)
+  };
 }
 
 function installPackage(packageJSONPath, package, version, cb) {
@@ -194,7 +210,7 @@ function makeFakeProject(path, moduleName, version) {
 
   // copy the package.json and the index.js file
   var packageTmp = require('./tmp.package.json');
-  packageTmp.name = '@npmvi/' + moduleName + '-' + version;
+  packageTmp.name = '' + moduleName + '-' + version;
   packageTmp.dependencies = packageTmp.dependencies || {};
   packageTmp.dependencies[moduleName] = version;
   var packageFilePath = PATH_MODULE.resolve(moduleAndVer, './package.json');
