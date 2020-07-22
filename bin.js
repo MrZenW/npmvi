@@ -8,11 +8,14 @@ var moduleName = null;
 var moduleVersion = null;
 if (argvCmd === 'install') {
   if (process.argv[3]) {
-    var mAndV = process.argv[3].split('@');
-    if (mAndV) {
-      moduleVersion = mAndV[mAndV.length - 1];
-      moduleName = mAndV[mAndV.length - 2];
+    var mAndV = process.argv[3];
+    var lastIndexOfAtSymbol = mAndV.lastIndexOf('@');
+    if (lastIndexOfAtSymbol < 0) {
+      process.stderr.write('🤷‍♂️ Need package@version!\n');
+      process.exit(1);
     }
+    moduleVersion = mAndV.slice(lastIndexOfAtSymbol + 1);
+    moduleName = mAndV.slice(0, lastIndexOfAtSymbol);
   } else {
     // else, install by package.json
   }
